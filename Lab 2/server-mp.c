@@ -16,7 +16,7 @@ void error(char *msg)
 
 int main(int argc, char *argv[])
 {
-     int sockfd, newsockfd, portno, clilen;
+     int sockfd, newsockfd, portno, clilen,pid,w,status;
      char buffer[256];
      struct sockaddr_in serv_addr, cli_addr;
      int n;
@@ -52,38 +52,56 @@ int main(int argc, char *argv[])
 
      /* accept a new request, create a newsockfd */
 
-     newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-     if (newsockfd < 0) 
-          error("ERROR on accept");
-
-     /* read message from client */
-
-     bzero(buffer,256);
-     n = read(newsockfd,buffer,255);
-     if (n < 0) error("ERROR reading from socket");
-     printf("Here is the message: %s\n",buffer);
-     char buffer1[256];
-     bzero(buffer1,256);
-     strcpy(buffer1,buffer+4);
-     printf("%s\n",buffer1);
-     size_t len = strlen(buffer1);
-     char * newBuf = (char *)malloc(len-1);
-     memcpy(newBuf,buffer1,len-1);
-     printf("%s",newBuf);
-     printf("yo\n");
-     FILE *fp;
-     fp = fopen(newBuf,"r");
-     char buff[512];
-     while(fgets(buff,512,(FILE*)fp) != NULL)
+     while(1)
      {
-        printf("Sent 512\n");
-        n = write(newsockfd,buff,512);
-        printf("%s\n",buff);
-        /* send reply to client */
-        if (n < 0) 
-            error("ERROR writing to socket");
-     }
-     fclose(fp);
+         newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+         if (newsockfd < 0) 
+              error("ERROR on accept");
 
+         while ((w = waitpid(-1,&status,WNOHANG)) > 0)                               
+         	fprintf(stderr,"Completed: %d (%d)\n",w,status);
+
+         /* read message from client */
+      	pid = fork();
+      	if(pid==0)
+      	{
+      		close(sockfd);
+	         bzero(buffer,256);
+	         n = read(newsockfd,buffer,255);
+	         if (n < 0) error("ERROR reading from socket");
+	         printf("Here is the message: %s\n",buffer);
+	         char buffer1[256];
+	         bzero(buffer1,256);
+	         strcpy(buffer1,buffer+4);
+
+	         size_t len = strlen(buffer1);
+	         char * newBuf = (char *)malloc(len-1);
+	         memcpy(newBuf,buffer1,len-1);
+
+	         FILE *fp;
+	         fp = fopen(newBuf,"r");
+	         char buff[512];
+	         while(fgets(buff,512,(FILE*)fp) != NULL)
+	         {
+	            n = write(newsockfd,buff,512);
+	            printf("%s\n",buff);
+	            /* send reply to client */
+	            if (n < 0) 
+	                error("ERROR writing to socket");
+	         }
+	         fclose(fp);
+	         close(newsockfd);
+	         exit(0);
+	      }
+	      else if(pid>0)
+	      {
+	      	close(newsockfd);
+	      	continue;
+	      }
+	      else
+	      {
+	      	error("ERROR creating child process");
+	      }
+     }
      return 0; 
 }

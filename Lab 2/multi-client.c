@@ -3,6 +3,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h> 
+#include <string.h>
+#include <stdlib.h>
 
 void error(char *msg)
 {
@@ -76,5 +78,6 @@ int main(int argc, char *argv[])
         printf("%s\n",buff);
         i++;
     }
+    close(sockfd);
     return 0;
 }
