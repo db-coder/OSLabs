@@ -5,6 +5,13 @@
 #include <netdb.h> 
 #include <string.h>
 #include <stdlib.h>
+#include <pthread.h>
+#include <unistd.h>
+
+int sockfd, portno, n, p, total, wait, rnd;//total is total duration of the expt, sleep is sleep time, random is 1 if random, 0 if fixed
+
+struct sockaddr_in serv_addr;
+struct hostent *server;
 
 void error(char *msg)
 {
@@ -12,13 +19,56 @@ void error(char *msg)
     exit(0);
 }
 
+void *process(){
+    time_t tv_sec;
+    while(1){
+        //printf("%s\n", serv_addr.sin_family);
+        int sockfd;
+        sockfd = socket(AF_INET, SOCK_STREAM, 0);
+        if (sockfd < 0) 
+            error("ERROR opening socket");
+        
+        if ((p = connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr))) < 0) 
+            error("ERROR connecting");
+        printf("%d\n", sockfd);
+        int r;
+        if(rnd==1){
+            srand(time(NULL));
+            r = rand() % 10000;
+        }
+        else{
+            r = 0;
+        }
+        char num[4];
+        sprintf(num, "%d", r);
+        strcat(num, ".txt");
+        char msg[50] = "files/foo";
+        strcat(msg, num);
+        printf("asdf\n");
+        n = write(sockfd,msg,strlen(msg));
+        if (n < 0) error("ERROR writing to socket");
+        printf("%s\n", msg);
+        char buff[512];
+        while(1)
+        {
+            n = read(sockfd,buff,512);
+            if (n <= 0) 
+            {
+                //error("ERROR reading from socket");
+                break;
+            }     
+            printf("%s\n",buff);
+        }
+        close(sockfd);
+        time_t tv_sec2;
+        if(difftime(tv_sec2, tv_sec) > total) break;
+        else sleep(wait);
+    }
+    pthread_exit(NULL);
+}
+
 int main(int argc, char *argv[])
 {
-    int sockfd, portno, n;
-
-    struct sockaddr_in serv_addr;
-    struct hostent *server;
-
     char buffer[256];
     if (argc < 3) {
        fprintf(stderr,"usage %s hostname port\n", argv[0]);
@@ -28,9 +78,6 @@ int main(int argc, char *argv[])
     /* create socket, get sockfd handle */
 
     portno = atoi(argv[2]);
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0) 
-        error("ERROR opening socket");
 
     /* fill in server address in sockaddr_in datastructure */
 
@@ -45,39 +92,48 @@ int main(int argc, char *argv[])
          (char *)&serv_addr.sin_addr.s_addr,
          server->h_length);
     serv_addr.sin_port = htons(portno);
-
-    /* connect to server */
-
-    if (connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0) 
-        error("ERROR connecting");
-
-    /* ask user for input */
-
-    printf("Please enter the message: ");
-    bzero(buffer,256);
-    fgets(buffer,255,stdin);
-
-    /* send user message to server */
-
-    n = write(sockfd,buffer,strlen(buffer));
-    if (n < 0) 
-         error("ERROR writing to socket");
-    bzero(buffer,256);
-
-    /* read reply from server */
-    int i=0;
-    char buff[512];
-    while(1)
-    {
-        n = read(sockfd,buff,512);
-        if (n <= 0) 
-        {
-            //error("ERROR reading from socket");
-            break;
-        }     
-        printf("%s\n",buff);
-        i++;
+    //printf("%s\n", serv_addr.sin_family);
+    pthread_t tid[atoi(argv[3])];
+    total = atoi(argv[4]);
+    wait = atoi(argv[5]);
+    if(strcmp(argv[6], "random") == 0) rnd = 1;
+    else rnd = 0;
+    int i;
+    for(i=0; i<atoi(argv[3]); i++){
+        pthread_create(&tid[i], NULL, process, NULL);
     }
-    close(sockfd);
-    return 0;
+    pthread_exit(NULL);
+
+    // /* connect to server */
+
+    // if (connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0) 
+    //     error("ERROR connecting");
+
+    // /* ask user for input */
+
+    // printf("Please enter the message: ");
+    // bzero(buffer,256);
+    // fgets(buffer,255,stdin);
+
+    // /* send user message to server */
+
+    // n = write(sockfd,buffer,strlen(buffer));
+    // if (n < 0) 
+    //      error("ERROR writing to socket");
+    // bzero(buffer,256);
+
+    // /* read reply from server */
+    // char buff[512];
+    // while(1)
+    // {
+    //     n = read(sockfd,buff,512);
+    //     if (n <= 0) 
+    //     {
+    //         //error("ERROR reading from socket");
+    //         break;
+    //     }     
+    //     printf("%s\n",buff);
+    // }
+    // close(sockfd);
+    //return 0;
 }

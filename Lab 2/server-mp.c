@@ -58,6 +58,8 @@ int main(int argc, char *argv[])
          if (newsockfd < 0) 
               error("ERROR on accept");
 
+          printf("connection\n");
+
          while ((w = waitpid(-1,&status,WNOHANG)) > 0)                               
          	fprintf(stderr,"Completed: %d (%d)\n",w,status);
 
