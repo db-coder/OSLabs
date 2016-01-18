@@ -9,6 +9,8 @@
 #include <unistd.h>
 
 int sockfd, portno, n, p, total, wait, rnd;//total is total duration of the expt, sleep is sleep time, random is 1 if random, 0 if fixed
+int* req;
+double* time_taken;
 
 struct sockaddr_in serv_addr;
 struct hostent *server;
@@ -19,10 +21,13 @@ void error(char *msg)
     exit(0);
 }
 
-void *process(){
+void *process(void *i){
     time_t tv_sec;
+    tv_sec = time(NULL);
     while(1){
         //printf("%s\n", serv_addr.sin_family);
+        time_t tv_sec1;
+        tv_sec1 = time(NULL);
         int sockfd;
         sockfd = socket(AF_INET, SOCK_STREAM, 0);
         if (sockfd < 0) 
@@ -39,12 +44,15 @@ void *process(){
         else{
             r = 10000;
         }
+
+        req[(int)i]++;
+
         char num[4];
         sprintf(num, "%d", r);
         strcat(num, ".txt");
         char msg[50] = "get files/foo";
         strcat(msg, num);
-        printf("asdf\n");
+
         n = write(sockfd,msg,strlen(msg));
         if (n < 0) error("ERROR writing to socket");
         printf("%s\n", msg);
@@ -52,15 +60,23 @@ void *process(){
         while(1)
         {
             n = read(sockfd,buff,512);
-            if (n <= 0) 
+            // printf("n%d\n",n);
+            if (n < 0) 
             {
-                //error("ERROR reading from socket");
+                error("ERROR reading from socket");
+                break;
+            }
+            else if(n==0)
+            {
                 break;
             }     
-            printf("%s\n",buff);
+            // printf("%s\n",buff);
         }
         close(sockfd);
         time_t tv_sec2;
+        tv_sec2 = time(NULL);
+        printf("i%d %d\n",i,req[(int)i]);
+        time_taken[(int)i] += difftime(tv_sec2, tv_sec1);
         if(difftime(tv_sec2, tv_sec) > total) break;
         else sleep(wait);
     }
@@ -69,6 +85,8 @@ void *process(){
 
 int main(int argc, char *argv[])
 {
+    time_t total_time0;
+    total_time0 = time(NULL);
     char buffer[256];
     if (argc < 3) {
        fprintf(stderr,"usage %s hostname port\n", argv[0]);
@@ -94,46 +112,38 @@ int main(int argc, char *argv[])
     serv_addr.sin_port = htons(portno);
     //printf("%s\n", serv_addr.sin_family);
     pthread_t tid[atoi(argv[3])];
+
+    req = calloc(atoi(argv[3]),sizeof(int));
+    time_taken = calloc(atoi(argv[3]),sizeof(double));
+
     total = atoi(argv[4]);
     wait = atoi(argv[5]);
     if(strcmp(argv[6], "random") == 0) rnd = 1;
     else rnd = 0;
     int i;
     for(i=0; i<atoi(argv[3]); i++){
-        pthread_create(&tid[i], NULL, process, NULL);
+        req[i]=0;
+        time_taken[i]=0;
+        pthread_create(&tid[i], NULL, process, (void *) i);
     }
-    pthread_exit(NULL);
-
-    // /* connect to server */
-
-    // if (connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0) 
-    //     error("ERROR connecting");
-
-    // /* ask user for input */
-
-    // printf("Please enter the message: ");
-    // bzero(buffer,256);
-    // fgets(buffer,255,stdin);
-
-    // /* send user message to server */
-
-    // n = write(sockfd,buffer,strlen(buffer));
-    // if (n < 0) 
-    //      error("ERROR writing to socket");
-    // bzero(buffer,256);
-
-    // /* read reply from server */
-    // char buff[512];
-    // while(1)
-    // {
-    //     n = read(sockfd,buff,512);
-    //     if (n <= 0) 
-    //     {
-    //         //error("ERROR reading from socket");
-    //         break;
-    //     }     
-    //     printf("%s\n",buff);
-    // }
-    // close(sockfd);
-    //return 0;
+    for(i=0; i<atoi(argv[3]); i++){
+        pthread_join(tid[i], NULL);
+    }
+    // pthread_exit(NULL);
+    printf("Done!\n");
+    time_t total_time1;
+    total_time1 = time(NULL);
+    int sum=0;
+    double time_taken_total=0;
+    for(i=0;i<atoi(argv[3]);i++)
+    {
+        sum+=req[i];
+        time_taken_total+=time_taken[i];
+        printf("requests: %d%d\n",i,req[i] );
+    }
+    printf("Throughput: %f req/s\n",(double)sum/difftime(total_time1,total_time0) );
+    printf("Average Response Time: %f sec\n",time_taken_total/(double)sum );
+    free(req);
+    free(time_taken);
+    return 0;
 }

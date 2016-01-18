@@ -16,7 +16,7 @@ void error(char *msg)
 
 int main(int argc, char *argv[])
 {
-     int sockfd, newsockfd, portno, clilen,pid,w,status;
+     int sockfd, newsockfd, portno, clilen,pid,w;
      char buffer[256];
      struct sockaddr_in serv_addr, cli_addr;
      int n;
@@ -54,14 +54,15 @@ int main(int argc, char *argv[])
 
      while(1)
      {
+        do{
+            w = waitpid(-1,0,WNOHANG);
+        }while(w!=-1);
+
          newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
          if (newsockfd < 0) 
               error("ERROR on accept");
 
           printf("connection\n");
-
-         while ((w = waitpid(-1,&status,WNOHANG)) > 0)                               
-         	fprintf(stderr,"Completed: %d (%d)\n",w,status);
 
          /* read message from client */
       	pid = fork();
