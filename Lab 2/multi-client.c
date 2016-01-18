@@ -37,12 +37,12 @@ void *process(){
             r = rand() % 10000;
         }
         else{
-            r = 0;
+            r = 10000;
         }
         char num[4];
         sprintf(num, "%d", r);
         strcat(num, ".txt");
-        char msg[50] = "files/foo";
+        char msg[50] = "get files/foo";
         strcat(msg, num);
         printf("asdf\n");
         n = write(sockfd,msg,strlen(msg));

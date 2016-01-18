@@ -77,9 +77,9 @@ int main(int argc, char *argv[])
 	         strcpy(buffer1,buffer+4);
 
 	         size_t len = strlen(buffer1);
-	         char * newBuf = (char *)malloc(len-1);
-	         memcpy(newBuf,buffer1,len-1);
-
+	         char * newBuf = (char *)malloc(len);
+	         memcpy(newBuf,buffer1,len);
+             printf("file:%s\n",newBuf );
 	         FILE *fp;
 	         fp = fopen(newBuf,"r");
 	         char buff[512];
