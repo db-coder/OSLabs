@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
          if (newsockfd < 0) 
               error("ERROR on accept");
 
-          printf("connection\n");
+          // printf("connection\n");
 
          /* read message from client */
       	pid = fork();
@@ -80,14 +80,16 @@ int main(int argc, char *argv[])
 	         size_t len = strlen(buffer1);
 	         char * newBuf = (char *)malloc(len);
 	         memcpy(newBuf,buffer1,len);
-             printf("file:%s\n",newBuf );
+             // printf("file:%s\n",newBuf );
 	         FILE *fp;
 	         fp = fopen(newBuf,"r");
-	         char buff[512];
-	         while(fgets(buff,512,(FILE*)fp) != NULL)
+	         char buff[1024];
+             bzero(buff,1024);
+	         while(fgets(buff,1024,(FILE*)fp) != NULL)
 	         {
-	            n = write(newsockfd,buff,512);
-	            printf("%s\n",buff);
+	            n = write(newsockfd,buff,1024);
+                bzero(buff,1024);
+	            // printf("%d\n",n);
 	            /* send reply to client */
 	            if (n < 0) 
 	                error("ERROR writing to socket");

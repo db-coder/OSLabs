@@ -39,7 +39,11 @@ void *process(void *i){
         int r;
         if(rnd==1){
             srand(time(NULL));
-            r = rand() % 10000;
+            r = rand()*(int)i % 10000;
+            if (r<0)
+            {
+            	r=-r;
+            }
         }
         else{
             r = 10000;
@@ -55,11 +59,16 @@ void *process(void *i){
 
         n = write(sockfd,msg,strlen(msg));
         if (n < 0) error("ERROR writing to socket");
-        printf("%s\n", msg);
-        char buff[512];
-        while(1)
+        // printf("%s\n", msg);
+        char buff[1024];
+        bzero(buff,1024);
+        n = read(sockfd,buff,1024);
+        bzero(buff,1024);
+        // printf("n%d",n);
+        while(n>0)
         {
-            n = read(sockfd,buff,512);
+            n = read(sockfd,buff,1024);
+            bzero(buff,1024);
             // printf("n%d\n",n);
             if (n < 0) 
             {
@@ -70,12 +79,13 @@ void *process(void *i){
             {
                 break;
             }     
-            // printf("%s\n",buff);
+            // printf("n%d",n);
         }
+        printf("Done!\n");
         close(sockfd);
         time_t tv_sec2;
         tv_sec2 = time(NULL);
-        printf("i%d %d\n",i,req[(int)i]);
+        // printf("i%d %d\n",i,req[(int)i]);
         time_taken[(int)i] += difftime(tv_sec2, tv_sec1);
         if(difftime(tv_sec2, tv_sec) > total) break;
         else sleep(wait);
@@ -130,7 +140,7 @@ int main(int argc, char *argv[])
         pthread_join(tid[i], NULL);
     }
     // pthread_exit(NULL);
-    printf("Done!\n");
+    // printf("Done!\n");
     time_t total_time1;
     total_time1 = time(NULL);
     int sum=0;
@@ -139,7 +149,7 @@ int main(int argc, char *argv[])
     {
         sum+=req[i];
         time_taken_total+=time_taken[i];
-        printf("requests: %d%d\n",i,req[i] );
+        // printf("requests: %d%d\n",i,req[i] );
     }
     printf("Throughput: %f req/s\n",(double)sum/difftime(total_time1,total_time0) );
     printf("Average Response Time: %f sec\n",time_taken_total/(double)sum );

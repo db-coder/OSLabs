@@ -1,0 +1,88 @@
+Question 1:
+
+Question 2:
+
+./client 10.7.160.48 5000 1 120 0 random
+
+Throughput: 5.586777 req/s
+Average Response Time: 0.178994 sec
+
+./client 10.7.160.48 5000 2 120 0 random
+
+Throughput: 5.611570 req/s
+Average Response Time: 0.356406 sec
+
+./client 10.7.160.48 5000 5 120 0 random
+
+Throughput: 5.504132 req/s
+Average Response Time: 0.908408 sec
+
+./client 10.7.160.48 5000 10 120 0 random
+
+Throughput: 5.015038 req/s
+Average Response Time: 1.869565 sec
+
+Question 3:
+
+./client 10.7.160.48 5000 1 120 1 random
+
+Throughput: 0.859504 req/s
+Average Response Time: 0.173077 sec
+
+./client 10.7.160.48 5000 2 120 1 random
+
+Throughput: 1.672131 req/s
+Average Response Time: 0.200980 sec
+
+./client 10.7.160.48 5000 5 120 1 random
+
+Throughput: 4.180328 req/s
+Average Response Time: 0.198039 sec
+
+./client 10.7.160.48 5000 10 120 1 random
+
+Throughput: 5.483607 req/s
+Average Response Time: 0.831091 sec
+
+./client 10.7.160.48 5000 15 120 1 random
+
+Throughput: 4.704545 req/s
+Average Response Time: 2.109501 sec
+
+./client 10.7.160.48 5000 20 120 1 random
+
+Throughput: 3.457516 req/s
+Average Response Time: 3.761815 sec
+
+./client 10.7.160.48 5000 25 120 1 random
+
+Throughput: 2.248366 req/s
+Average Response Time: 9.049419 sec
+
+Question 4:
+
+./client 10.7.160.48 5000 1 120 0 fixed
+
+Throughput: 5.677686 req/s
+Average Response Time: 0.176128 sec
+
+(For file size ~10kB):
+./client 10.7.160.48 5000 1 120 0 fixed
+
+Throughput: 89.661157 req/s
+Average Response Time: 0.011153 sec
+
+./client 10.7.160.48 5000 2 120 0 fixed
+
+Throughput: 5.710744 req/s
+Average Response Time: 0.350217 sec
+
+./client 10.7.160.48 5000 5 120 0 fixed
+
+Throughput: 5.727273 req/s
+Average Response Time: 0.873016 sec
+
+./client 10.7.160.48 5000 10 120 0 fixed
+
+Throughput: 5.460938 req/s
+Average Response Time: 1.753934 sec
