@@ -7,6 +7,7 @@ Question 1:
 
 We are using 2 laptops. 1 Lenovo laptop having Ubuntu 15.04 x86_64 architecture, 8GB RAM. The 2nd one, a DELL laptop having Ubuntu 15.04 x86_64 architecture, 4GB RAM. Our setup has both these laptops connected to a LAN.
 (i) Maximum read bandwidth of the disk is 40 MB/s. This is approximately  requests/s.
+
 Question 2:
 
 ./multi-client 10.7.160.48 5000 1 120 0 random
@@ -69,15 +70,15 @@ Average Response Time: 3.761815 sec
 Throughput: 2.248366 req/s
 Average Response Time: 9.049419 sec
 
+(a) Optimal value of N is 10. 
+(b) The throughput is less for values of N lower or higher than the optimal value. The response time for lower N is lesser and for greater N is higher than the optimal value.
+
 Question 4:
 
 ./multi-client 10.7.160.48 5000 1 120 0 fixed
 
 Throughput: 5.677686 req/s
 Average Response Time: 0.176128 sec
-
-(For file size ~10kB):
-./multi-client 10.7.160.48 5000 1 120 0 fixed
 
 Throughput: 89.661157 req/s
 Average Response Time: 0.011153 sec
@@ -96,3 +97,9 @@ Average Response Time: 0.873016 sec
 
 Throughput: 5.460938 req/s
 Average Response Time: 1.753934 sec
+
+(For file size ~10kB):
+./multi-client 10.7.160.48 5000 1 120 0 fixed
+
+(a) Optimal value of N is 5. 
+(b) The throughput is less for values of N lower or higher than the optimal value. The response time for lower N is lesser and for greater N is higher than the optimal value.
