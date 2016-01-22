@@ -6,7 +6,7 @@ Group Members:
 Question 1:
 
 We are using 2 laptops. 1 Lenovo laptop having Ubuntu 15.04 x86_64 architecture, 8GB RAM. The 2nd one, a DELL laptop having Ubuntu 15.04 x86_64 architecture, 4GB RAM. Our setup has both these laptops connected to a LAN.
-(i) Maximum read bandwidth of the disk is 40 MB/s. This is approximately  requests/s.
+(i) Maximum read bandwidth of the disk is 40 MB/s. This is approximately 20 requests/s.
 
 Question 2:
 
