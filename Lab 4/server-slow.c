@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 	         printf("Here is the message: %s\n",buffer);
 	         char buffer1[256];
 	         bzero(buffer1,256);
-	         strcpy(buffer1,buffer+4);
+	         strcpy(buffer1,buffer);
 
 	         size_t len = strlen(buffer1);
 	         char * newBuf = (char *)malloc(len);
