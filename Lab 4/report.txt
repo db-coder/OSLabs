@@ -1,0 +1,36 @@
+Group Members:
+
+130050007	:	Vaibhav Bhosale
+130050046	:	Dibyendu Mondal
+
+Question 1:
+
+pid of shell is 1837
+The process tree is as follows:
+systemd(init) -> lightdm -> lightdm -> upstart -> gnome-terminal -> bash
+We can get this using the pstree command
+
+Question 2:
+cd is shell builtin
+ls is 
+history is shell builtin
+ps is exec'd by the bash shell(its executable can be found at /bin/ps)
+
+Question 3:
+fd 0(standard input) points to /dev/pts/1
+fd 1(standard output) points to /tmp/tmp.txt
+fd 2(error stream) points to /dev/pts/1
+
+
+Question 4:
+For cpu1printf, the fd's point as follows:
+fd 0(standard input) points to /dev/pts/18
+fd 1(standard output) points to pipe:[72166]
+fd 2(error stream) points to /dev/pts/18
+
+For grep, the fd's point as follows:
+fd 0(standard input) points to pipe:[72166]
+fd 1(standard output) points to /dev/pts/18
+fd 2(error stream) points to /dev/pts/18
+
+Question 5:
