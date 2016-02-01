@@ -89,7 +89,8 @@ void  main(void)
         		continue;
         	}
         	strcpy(server_ip,tokens[1]);
-        	server_port=tokens[2];
+        	server_port=atoi(tokens[2]);
+        	printf("%d\n",server_port );
         }
         else if(strcmp(tokens[0],"getfl")==0)
         {
@@ -122,7 +123,32 @@ void  main(void)
         }
         else
         {
-
+        	pid_t pid;
+        	pid=fork();
+        	if(pid==0)
+        	{
+        		char arg[100];
+        		bzero(arg,100);
+        		strcpy(arg,"/bin/");
+        		strcat(arg,tokens[0]);
+        		int err = execl(arg,arg,tokens[1],(char *)0);
+        		if(err==-1)
+        		{
+        			fprintf(stderr, "Something went wrong :(\n");
+        		}
+        	}
+        	else if(pid>0)
+	        {
+	        	int w;
+	      		do
+	      		{
+		            w = waitpid(-1,0,WNOHANG);
+		        }while(w!=-1);
+			}
+	        else
+	        {
+	      		error("ERROR creating child process");
+	        }
         }
 
        // Freeing the allocated memory	
