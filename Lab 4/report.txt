@@ -22,7 +22,8 @@ Question 3:
 fd 0(standard input) points to /dev/pts/1
 fd 1(standard output) points to /tmp/tmp.txt
 fd 2(error stream) points to /dev/pts/1
-
+Input redirection by Bash:
+First, a new process is forked which has the default file descriptors. Then, seeing the '>' sign, the file descriptor 1 is closed(in child). And the file /tmp/tmp.txt is opened. Since 1 is the smallest available file descriptor available, it points to the newly opened file.
 
 Question 4:
 
@@ -35,5 +36,6 @@ For grep, the fd's point as follows:
 fd 0(standard input) points to pipe:[72166]
 fd 1(standard output) points to /dev/pts/18
 fd 2(error stream) points to /dev/pts/18
-
-Question 5:
+Implementation of pipe in Bash:
+First a pipe is called before forking a new process. File descriptor 1 of the child process is redirected to the write file descriptor of the pipe. The child dups the write end of the pipe onto the file descriptor 1 of the child process and then closes both the file descriptors of the pipe and execs "./cpu1print".
+Meanwhile, the parents till the execution of the child process. It dups the read end of the pipe onto the file descriptor 0 of the parent process. Then the parent execs "grep hello" with the modified file descriptors.
