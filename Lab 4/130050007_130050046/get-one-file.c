@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
         }
         if (disp)
         {
-         	printf("%s",buff);
+         	printf("%s\n",buff);
         }
     }
     close(sockfd);

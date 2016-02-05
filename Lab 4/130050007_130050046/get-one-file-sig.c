@@ -5,6 +5,15 @@
 #include <netdb.h> 
 #include <string.h>
 #include <stdlib.h>
+#include <signal.h>
+
+long long int count=0;
+
+void intHandler()
+{
+    printf("Received SIGINT; downloaded %lld bytes so far.\n",count);
+    exit(0);
+}
 
 void error(char *msg)
 {
@@ -15,6 +24,7 @@ void error(char *msg)
 int main(int argc, char *argv[])
 {
     int sockfd, portno, n;
+    signal(SIGINT,intHandler);
 
     struct sockaddr_in serv_addr;
     struct hostent *server;
@@ -53,7 +63,6 @@ int main(int argc, char *argv[])
 
     /* ask user for input */
 
-    // printf("Please enter the message: ");
     bzero(buffer,256);
     strcpy(buffer,argv[1]);
 
@@ -80,12 +89,12 @@ int main(int argc, char *argv[])
         n = read(sockfd,buff,1024);
         if (n <= 0) 
         {
-
             break;
         }
+        count+=n;
         if (disp)
         {
-         	printf("%s",buff);
+         	printf("%s\n",buff);
         }
     }
     close(sockfd);

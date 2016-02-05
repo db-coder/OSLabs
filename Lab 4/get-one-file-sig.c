@@ -62,11 +62,10 @@ int main(int argc, char *argv[])
         error("ERROR connecting");
 
     /* ask user for input */
-
-    // printf("Please enter the message: ");
+    printf("%s %s %s %s\n",argv[1],argv[2],argv[3],argv[4] );
     bzero(buffer,256);
     strcpy(buffer,argv[1]);
-    // fgets(buffer,255,stdin);
+
     int disp;
     if (strcmp(argv[4],"display")==0)
     {
@@ -90,13 +89,12 @@ int main(int argc, char *argv[])
         n = read(sockfd,buff,1024);
         if (n <= 0) 
         {
-            //error("ERROR reading from socket");
             break;
         }
         count+=n;
         if (disp)
         {
-         	printf("%s\n",buff);
+         	printf("%s",buff);
         }
     }
     close(sockfd);
