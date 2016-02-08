@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -40,7 +41,7 @@ char **tokenize(char *line)
 }
 
 
-void  main(void)
+int main()
 {
     char  line[MAX_INPUT_SIZE];            
     char  **tokens;              
@@ -53,10 +54,15 @@ void  main(void)
 
     bzero(server_port,10);
     strcpy(server_port,"empty");
+    int bg=-1;
 
     while (1) 
     {           
-       
+        int bgw;
+        do
+        {
+            bgw = waitpid(-1,0,WNOHANG);
+        }while(bgw!=-1);       
     	printf("Hello>");     
         bzero(line, MAX_INPUT_SIZE);
         gets(line);           
@@ -132,7 +138,7 @@ void  main(void)
                 }
                 else
                 {
-                    error("ERROR creating child process");
+                    fprintf(stderr, "ERROR creating child process(\n");
                 }
             }
             else if(i==4 && strcmp(tokens[2],">")==0)
@@ -220,19 +226,135 @@ void  main(void)
         }
         else if(strcmp(tokens[0],"getsq")==0)
         {
-        	
+            if(strcmp(server_ip,"empty")==0 || server_port==0)
+            {
+                printf("The values of server_ip and server_port must be set.\n");
+                continue;
+            }
+        	if(i<1){
+                fprintf(stderr,"Incorrect number of arguments!!!\n");
+                continue;
+            }
+            int j;
+            for(j=1; j<i; j++){
+                pid_t pid;
+                pid=fork();
+                if(pid==0)
+                {
+                    char arg[100];
+                    bzero(arg,100);
+                    char arg1[100];
+                    bzero(arg1,100);
+                    strcpy(arg,"./get-one-file");
+                    strcpy(arg1,"files/");
+                    strcat(arg1,tokens[i]);
+                    int err = execl(arg,arg,arg1,server_ip,server_port,"display",(char *)0);
+                    if(err==-1)
+                    {
+                        fprintf(stderr, "Something went wrong :(\n");
+                    }
+                }
+                else if(pid>0)
+                {
+                    int w;
+                    do
+                    {
+                        w = waitpid(-1,0,WNOHANG);
+                    }while(w!=-1);
+                }
+                else
+                {
+                    fprintf(stderr, "ERROR creating child process(\n");
+                }
+            }   
+
         }
         else if(strcmp(tokens[0],"getpl")==0)
         {
-        	
+            if(strcmp(server_ip,"empty")==0 || server_port==0)
+            {
+                printf("The values of server_ip and server_port must be set.\n");
+                continue;
+            }
+        	if(i<1){
+                fprintf(stderr,"Incorrect number of arguments!!!\n");
+                continue;
+            }
+            int j;
+            for(j=1; j<i; j++){
+                pid_t pid;
+                pid=fork();
+                if(pid==0)
+                {
+                    char arg[100];
+                    bzero(arg,100);
+                    char arg1[100];
+                    bzero(arg1,100);
+                    strcpy(arg,"./get-one-file");
+                    strcpy(arg1,"files/");
+                    strcat(arg1,tokens[i]);
+                    int err = execl(arg,arg,arg1,server_ip,server_port,"display",(char *)0);
+                    if(err==-1)
+                    {
+                        fprintf(stderr, "Something went wrong :(\n");
+                    }
+                }
+                else if(pid<0)
+                {
+                    fprintf(stderr, "ERROR creating child process(\n");
+                }
+            }
+            int w;
+            do
+            {
+                w = waitpid(-1,0,WNOHANG);
+            }while(w!=-1);   
         }
         else if(strcmp(tokens[0],"getbg")==0)
         {
-        	
+        	if(strcmp(server_ip,"empty")==0 || server_port==0)
+            {
+                printf("The values of server_ip and server_port must be set.\n");
+                continue;
+            }
+            if(i!=2)
+            {
+                fprintf(stderr,"Incorrect number of arguments!!!\n");
+                continue;
+            }
+            pid_t pid;
+            pid=fork();
+            if(pid==0)
+            {
+                char arg[100];
+                bzero(arg,100);
+                char arg1[100];
+                bzero(arg1,100);
+                strcpy(arg,"./get-one-file");
+                strcpy(arg1,"files/");
+                strcat(arg1,tokens[1]);
+                int err = execl(arg,arg,arg1,server_ip,server_port,"display",(char *)0);
+                if(err==-1)
+                {
+                    fprintf(stderr, "Something went wrong :(\n");
+                }
+            }
+            else if(pid>0)
+            {
+                bg=pid;
+                continue;
+            }
+            else
+            {
+                fprintf(stderr, "ERROR creating child process(\n");
+            }
         }
         else if(strcmp(tokens[0],"exit")==0)
         {
-        	exit(0);
+        	if(bg != -1){
+                kill(bg, SIGKILL);
+            }
+            exit(0);
         }
         else
         {
@@ -260,7 +382,7 @@ void  main(void)
 			}
 	        else
 	        {
-	      		error("ERROR creating child process");
+	      		fprintf(stderr, "ERROR creating child process(\n");
 	        }
         }
 
