@@ -69,6 +69,7 @@ int main(int argc, char *argv[])
       		close(sockfd);
 	         bzero(buffer,256);
 	         n = read(newsockfd,buffer,255);
+             printf("Connect\n");
 	         if (n < 0) error("ERROR reading from socket");
 	         printf("Here is the message: %s\n",buffer);
 	         char buffer1[256];
@@ -95,6 +96,7 @@ int main(int argc, char *argv[])
 	         }
 	         fclose(fp);
 	         close(newsockfd);
+             printf("Disconnect\n");
 	         exit(0);
 	      }
 	      else if(pid>0)

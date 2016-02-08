@@ -5,10 +5,14 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <signal.h>
 
 #define MAX_INPUT_SIZE 1024
 #define MAX_TOKEN_SIZE 64
 #define MAX_NUM_TOKENS 64
+
+int num=0;
+int bg_id[64];
 
 char **tokenize(char *line)
 {
@@ -40,12 +44,32 @@ char **tokenize(char *line)
   return tokens;
 }
 
+void childhandler(){
+    pid_t pid;
+    int i;
+    for (i = 0; i < 64; ++i)
+    {
+        if(bg_id[i]!=-1)
+        {
+            pid = waitpid(bg_id[i],0,WNOHANG);
+            if(pid==bg_id[i])
+            {
+                printf("Background process exited\n");
+            }
+        }
+    }
+}
 
 int main()
 {
+    int i;
+    for (i = 0; i < 64; ++i)
+    {
+        bg_id[i]=-1;
+    }
+    signal(SIGCHLD, childhandler);
     char  line[MAX_INPUT_SIZE];            
     char  **tokens;              
-    int i;
     char server_ip[200];
     char server_port[10];
 
@@ -54,15 +78,9 @@ int main()
 
     bzero(server_port,10);
     strcpy(server_port,"empty");
-    int bg=-1;
 
     while (1) 
-    {           
-        int bgw;
-        do
-        {
-            bgw = waitpid(-1,0,WNOHANG);
-        }while(bgw!=-1);       
+    {
     	printf("Hello>");     
         bzero(line, MAX_INPUT_SIZE);
         gets(line);           
@@ -100,7 +118,6 @@ int main()
         	}
         	strcpy(server_ip,tokens[1]);
         	strcpy(server_port,tokens[2]);
-        	printf("%s\n",server_port );
         }
         else if(strcmp(tokens[0],"getfl")==0)
         {
@@ -197,8 +214,9 @@ int main()
                 pid=fork();
                 if(pid==0)
                 {
+                    close(1);
+                    dup(p[1]);
                     close(p[0]);
-                    dup2(p[1],1);
                     close(p[1]);
                     int err = execl(arg,arg,arg1,server_ip,server_port,"display",(char *)0);
                     if(err==-1)
@@ -210,13 +228,41 @@ int main()
                 else
                 {
                     char buff[1024];
+                    close(0);
+                    dup(p[0]);
+                    close(p[0]);
                     close(p[1]);
-                    while(read(p[0],buff,sizeof(buff))!=0)
+                    bzero(arg,100);
+                    strcpy(arg,"/bin/");
+                    strcat(arg,tokens[3]);
+
+                    pid_t pid1;
+                    pid1=fork();
+                    if(pid1==0)
                     {
-
+                        int err = execl(arg,arg,tokens[4],(char *)0);
+                        if(err==-1)
+                        {
+                            fprintf(stderr, "Something went wrong :(\n");
+                        }
                     }
-
+                    else
+                    {
+                        close(p[0]);
+                        close(p[1]);
+                    }
+                    int w,w2;
+                    do
+                    {
+                        w = waitpid(pid1,0,0);
+                    }while(w!=-1) ;
+                    do
+                    {
+                        w2 = waitpid(pid,0,0);
+                    }while(w2!=-1) ;
                 }
+                close(p[0]);
+                close(p[1]);
             }
             else
             {
@@ -231,7 +277,7 @@ int main()
                 printf("The values of server_ip and server_port must be set.\n");
                 continue;
             }
-        	if(i<1){
+        	if(i<2){
                 fprintf(stderr,"Incorrect number of arguments!!!\n");
                 continue;
             }
@@ -247,8 +293,8 @@ int main()
                     bzero(arg1,100);
                     strcpy(arg,"./get-one-file");
                     strcpy(arg1,"files/");
-                    strcat(arg1,tokens[i]);
-                    int err = execl(arg,arg,arg1,server_ip,server_port,"display",(char *)0);
+                    strcat(arg1,tokens[j]);
+                    int err = execl(arg,arg,arg1,server_ip,server_port,"nodisplay",(char *)0);
                     if(err==-1)
                     {
                         fprintf(stderr, "Something went wrong :(\n");
@@ -271,17 +317,18 @@ int main()
         }
         else if(strcmp(tokens[0],"getpl")==0)
         {
+            int *pl_id = (int *)malloc((i-1) * sizeof(int));
             if(strcmp(server_ip,"empty")==0 || server_port==0)
             {
                 printf("The values of server_ip and server_port must be set.\n");
                 continue;
             }
-        	if(i<1){
+        	if(i<2){
                 fprintf(stderr,"Incorrect number of arguments!!!\n");
                 continue;
             }
             int j;
-            for(j=1; j<i; j++){
+            for(j=0; j<i-1; j++){
                 pid_t pid;
                 pid=fork();
                 if(pid==0)
@@ -292,8 +339,8 @@ int main()
                     bzero(arg1,100);
                     strcpy(arg,"./get-one-file");
                     strcpy(arg1,"files/");
-                    strcat(arg1,tokens[i]);
-                    int err = execl(arg,arg,arg1,server_ip,server_port,"display",(char *)0);
+                    strcat(arg1,tokens[j+1]);
+                    int err = execl(arg,arg,arg1,server_ip,server_port,"nodisplay",(char *)0);
                     if(err==-1)
                     {
                         fprintf(stderr, "Something went wrong :(\n");
@@ -303,12 +350,17 @@ int main()
                 {
                     fprintf(stderr, "ERROR creating child process(\n");
                 }
+                else
+                    pl_id[j]=pid;
             }
-            int w;
-            do
+            int w,l;
+            for (l = 0; l < i-1;l++)
             {
-                w = waitpid(-1,0,WNOHANG);
-            }while(w!=-1);   
+                do
+                {
+                    w = waitpid(pl_id[l],0,0);
+                }while(w!=-1); 
+            }  
         }
         else if(strcmp(tokens[0],"getbg")==0)
         {
@@ -333,7 +385,7 @@ int main()
                 strcpy(arg,"./get-one-file");
                 strcpy(arg1,"files/");
                 strcat(arg1,tokens[1]);
-                int err = execl(arg,arg,arg1,server_ip,server_port,"display",(char *)0);
+                int err = execl(arg,arg,arg1,server_ip,server_port,"nodisplay",(char *)0);
                 if(err==-1)
                 {
                     fprintf(stderr, "Something went wrong :(\n");
@@ -341,7 +393,8 @@ int main()
             }
             else if(pid>0)
             {
-                bg=pid;
+                bg_id[num]=pid;
+                num++;
                 continue;
             }
             else
@@ -351,8 +404,13 @@ int main()
         }
         else if(strcmp(tokens[0],"exit")==0)
         {
-        	if(bg != -1){
-                kill(bg, SIGKILL);
+            int j;
+            for (j = 0; j < 64; ++j)
+            {
+                if(bg_id[j] != -1)
+                {
+                    kill(bg_id[j], SIGKILL);
+                }
             }
             exit(0);
         }
@@ -376,9 +434,9 @@ int main()
 	        {
 	        	int w;
 	      		do
-	      		{
-		            w = waitpid(-1,0,WNOHANG);
-		        }while(w!=-1);
+                {
+                    w = waitpid(pid,0,0);
+                }while(w!=-1);   
 			}
 	        else
 	        {
