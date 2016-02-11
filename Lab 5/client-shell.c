@@ -212,6 +212,10 @@ int main()
 
                 pid_t pid;
                 pid=fork();
+                if(pid<0)
+                {
+                    fprintf(stderr, "Child couldn't be created :(\n");
+                }
                 if(pid==0)
                 {
                     close(1);
@@ -223,34 +227,32 @@ int main()
                     {
                         fprintf(stderr, "Something went wrong :(\n");
                     }
-                    // execl(arg,arg,(char *)0);
                 }
                 else
                 {
-                    char buff[1024];
-                    close(0);
-                    dup(p[0]);
-                    close(p[0]);
-                    close(p[1]);
-                    bzero(arg,100);
-                    strcpy(arg,"/bin/");
-                    strcat(arg,tokens[3]);
-
                     pid_t pid1;
                     pid1=fork();
+                    if(pid1<0)
+                    {
+                        fprintf(stderr, "Child couldn't be created :(\n");
+                    }
                     if(pid1==0)
                     {
+                        close(0);
+                        dup(p[0]);
+                        close(p[0]);
+                        close(p[1]);
+                        bzero(arg,100);
+                        strcpy(arg,"/bin/");
+                        strcat(arg,tokens[3]);
                         int err = execl(arg,arg,tokens[4],(char *)0);
                         if(err==-1)
                         {
                             fprintf(stderr, "Something went wrong :(\n");
                         }
                     }
-                    else
-                    {
-                        close(p[0]);
-                        close(p[1]);
-                    }
+                    close(p[0]);
+                    close(p[1]);
                     int w,w2;
                     do
                     {
