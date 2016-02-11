@@ -91,8 +91,10 @@ int main()
        //do whatever you want with the commands, here we just print them
 
     	for(i=0;tokens[i]!=NULL;i++);
-       
-        if(strcmp(tokens[0],"cd")==0)
+        
+        if(i==0)
+            continue;
+        else if(strcmp(tokens[0],"cd")==0)
         {
         	if(i!=2)
         	{
@@ -330,10 +332,10 @@ int main()
                 continue;
             }
             int j;
-            for(j=0; j<i-1; j++){
-                pid_t pid;
-                pid=fork();
-                if(pid==0)
+            for(j=0; j<i-1; j++)
+            {
+                pl_id[j]=fork();
+                if(pl_id[j]==0)
                 {
                     char arg[100];
                     bzero(arg,100);
@@ -342,27 +344,24 @@ int main()
                     strcpy(arg,"./get-one-file");
                     strcpy(arg1,"files/");
                     strcat(arg1,tokens[j+1]);
-                    int err = execl(arg,arg,arg1,server_ip,server_port,"nodisplay",(char *)0);
+                    int err = execl(arg,arg,arg1,server_ip,server_port,"display",(char *)0);
                     if(err==-1)
                     {
                         fprintf(stderr, "Something went wrong :(\n");
                     }
+                    exit(0);
                 }
-                else if(pid<0)
+                else if(pl_id[j]<0)
                 {
                     fprintf(stderr, "ERROR creating child process(\n");
                 }
-                else
-                    pl_id[j]=pid;
             }
-            int w,l;
+            int l;
             for (l = 0; l < i-1;l++)
             {
-                do
-                {
-                    w = waitpid(pl_id[l],0,0);
-                }while(w!=-1); 
+                waitpid(pl_id[l],NULL,0);
             }  
+            free(pl_id);
         }
         else if(strcmp(tokens[0],"getbg")==0)
         {
