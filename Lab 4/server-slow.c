@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 	            /* send reply to client */
 	            if (n < 0) 
 	                error("ERROR writing to socket");
-                sleep(0.01);
+                sleep(1);
 	         }
 	         fclose(fp);
 	         close(newsockfd);

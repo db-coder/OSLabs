@@ -13,6 +13,7 @@
 
 int num=0;
 int bg_id[64];
+int fg, sig;
 
 char **tokenize(char *line)
 {
@@ -60,6 +61,14 @@ void childhandler(){
     }
 }
 
+void inthandler(){
+    if(fg != -1){
+        kill(fg, SIGKILL);
+        printf("killed %d\n", fg);
+        sig = 1;
+    }
+}
+
 int main()
 {
     int i;
@@ -67,7 +76,10 @@ int main()
     {
         bg_id[i]=-1;
     }
+    fg = -1;
+    sig = 0;
     signal(SIGCHLD, childhandler);
+    signal(SIGINT, inthandler);
     char  line[MAX_INPUT_SIZE];            
     char  **tokens;              
     char server_ip[200];
@@ -287,6 +299,9 @@ int main()
             }
             int j;
             for(j=1; j<i; j++){
+                if(sig == 1){
+                    break;
+                }
                 pid_t pid;
                 pid=fork();
                 if(pid==0)
@@ -298,7 +313,7 @@ int main()
                     strcpy(arg,"./get-one-file");
                     strcpy(arg1,"files/");
                     strcat(arg1,tokens[j]);
-                    int err = execl(arg,arg,arg1,server_ip,server_port,"nodisplay",(char *)0);
+                    int err = execl(arg,arg,arg1,server_ip,server_port,"display",(char *)0);
                     if(err==-1)
                     {
                         fprintf(stderr, "Something went wrong :(\n");
@@ -306,6 +321,10 @@ int main()
                 }
                 else if(pid>0)
                 {
+                    if(j==0){
+                        fg = pid;
+                    }
+                    setpgid(pid, fg);
                     int w;
                     do
                     {
@@ -317,7 +336,8 @@ int main()
                     fprintf(stderr, "ERROR creating child process(\n");
                 }
             }   
-
+            sig = 0;
+            fg = -1;
         }
         else if(strcmp(tokens[0],"getpl")==0)
         {
@@ -355,12 +375,20 @@ int main()
                 {
                     fprintf(stderr, "ERROR creating child process(\n");
                 }
+                else{
+                    if(j == 0){
+                        fg = pl_id[j];
+                    }
+                    setpgid(pl_id[j],fg);
+                    printf("%d\n", pl_id[j]);
+                }
             }
             int l;
             for (l = 0; l < i-1;l++)
             {
                 waitpid(pl_id[l],NULL,0);
-            }  
+            }
+            fg = -1;
             free(pl_id);
         }
         else if(strcmp(tokens[0],"getbg")==0)
