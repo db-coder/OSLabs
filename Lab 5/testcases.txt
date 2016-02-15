@@ -1,0 +1,65 @@
+Hello>ls -la
+total 196
+drwxrwxr-x 3 dibyendu dibyendu  4096 Feb 14 19:39 .
+drwxr-xr-x 7 dibyendu dibyendu  4096 Feb  1 15:00 ..
+-rwxrwxr-x 1 dibyendu dibyendu 18360 Feb 14 19:38 client-shell
+-rw-rw-r-- 1 dibyendu dibyendu 13824 Feb 14 19:37 client-shell.c
+-rw-rw-r-- 1 dibyendu dibyendu  1023 Feb 14 14:15 foo
+-rwxrwxr-x 1 dibyendu dibyendu 13672 Feb  6 01:13 get-one-file
+-rwxrwxr-x 1 dibyendu dibyendu 13800 Feb 14 14:11 get-one-file-sig
+drwxrwxr-x 2 dibyendu dibyendu  4096 Feb  1 16:06 gh
+-rw-rw-r-- 1 dibyendu dibyendu 86331 Jan 28 23:16 lab5.pdf
+-rwxrwxr-x 1 dibyendu dibyendu  8904 Feb  1 15:26 make-tokens
+-rw-rw-r-- 1 dibyendu dibyendu  1539 Sep 23 23:25 make-tokens.c
+-rw-rw-r-- 1 dibyendu dibyendu  1035 Feb 14 19:52 testcases.txt
+
+Hello>getfl foo10000.txt
+The values of server_ip and server_port must be set.
+
+Hello>server 127.0.0.1 5000
+
+Hello>getfl foo10000.txt
+1#include <unistd.h>
+1#include <stdio.h>
+1
+1int main(int argc, char *argv[]) 
+1
+1{
+1  unsigned int i,j;
+1  while(1)
+1    {
+1      j = 1;
+1      for(i = 1; i <= 10; i++)
+1	{
+1	  j = j*i;
+1	}
+1      printf("ten factorial is %u\n", j);
+1    }
+1}
+
+Hello>getfl foo1.txt foo1.txt
+Incorrect number of arguments!!!
+
+Hello>getfl foo10000.txt | grep h
+1#include <unistd.h>
+1#include <stdio.h>
+1int main(int argc, char *argv[]) 
+1  while(1)
+
+Hello>getsq foo0.txt foo1.txt      
+^CReceived SIGINT; downloaded 9216 bytes so far.
+
+Hello>getbg foo0.txt
+
+Hello>getbg foo1.txt
+
+Hello>exit
+Received SIGINT; downloaded 0 bytes so far.
+Received SIGINT; downloaded 6144 bytes so far.
+dibyendu@dibyendu:~/Desktop/Sem 6/CS 333/Lab 5$ 
+
+Hello>ps
+  PID TTY          TIME CMD
+ 3642 pts/2    00:00:00 bash
+ 4007 pts/2    00:00:00 client-shell
+ 4301 pts/2    00:00:00 ps

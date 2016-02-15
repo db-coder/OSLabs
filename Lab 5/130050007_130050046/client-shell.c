@@ -20,28 +20,28 @@ int getsq=0;
 
 char **tokenize(char *line)
 {
-    char **tokens = (char **)malloc(MAX_NUM_TOKENS * sizeof(char *));
-    char *token = (char *)malloc(MAX_TOKEN_SIZE * sizeof(char));
-    int i, tokenIndex = 0, tokenNo = 0;
+	char **tokens = (char **)malloc(MAX_NUM_TOKENS * sizeof(char *));
+  	char *token = (char *)malloc(MAX_TOKEN_SIZE * sizeof(char));
+  	int i, tokenIndex = 0, tokenNo = 0;
 
-    for(i =0; i < strlen(line); i++)
-    {
-        char readChar = line[i];
+  	for(i =0; i < strlen(line); i++)
+  	{
+	    char readChar = line[i];
 
-        if (readChar == ' ' || readChar == '\n' || readChar == '\t')
-        {
-            token[tokenIndex] = '\0';
-            if (tokenIndex != 0)
-            {
-                tokens[tokenNo] = (char*)malloc(MAX_TOKEN_SIZE*sizeof(char));
-                strcpy(tokens[tokenNo++], token);
-                tokenIndex = 0; 
-            }
-        } 
-        else {
-            token[tokenIndex++] = readChar;
-        }
-    }
+	    if (readChar == ' ' || readChar == '\n' || readChar == '\t')
+	    {
+	      	token[tokenIndex] = '\0';
+	    	if (tokenIndex != 0)
+	    	{
+				tokens[tokenNo] = (char*)malloc(MAX_TOKEN_SIZE*sizeof(char));
+				strcpy(tokens[tokenNo++], token);
+				tokenIndex = 0; 
+		    }
+	    } 
+	    else {
+	    	token[tokenIndex++] = readChar;
+	    }
+  	}
  
   free(token);
   tokens[tokenNo] = NULL ;
@@ -95,50 +95,50 @@ int main()
 
     while (1) 
     {
-        printf("Hello>");     
+    	printf("Hello>");     
         bzero(line, MAX_INPUT_SIZE);
         gets(line);           
        // printf("Got command %s\n", line);
         line[strlen(line)] = '\n'; //terminate with new line
         tokens = tokenize(line);
-        
+   		
        //do whatever you want with the commands, here we just print them
 
-        for(i=0;tokens[i]!=NULL;i++);
+    	for(i=0;tokens[i]!=NULL;i++);
         
         if(i==0)
             continue;
         else if(strcmp(tokens[0],"cd")==0)
         {
-            if(i!=2)
-            {
-                fprintf(stderr,"Incorrect number of arguments!!!\n");
-                continue;
-            }
-            int x=chdir(tokens[1]);
-            if(x==-1)
-            {
-                fprintf(stderr, "Please give the correct path.\n");
-                continue;
-            }
+        	if(i!=2)
+        	{
+        		fprintf(stderr,"Incorrect number of arguments!!!\n");
+        		continue;
+        	}
+        	int x=chdir(tokens[1]);
+        	if(x==-1)
+        	{
+        		fprintf(stderr, "Please give the correct path.\n");
+        		continue;
+        	}
         }
         else if(strcmp(tokens[0],"server")==0)
         {
-            if(i!=3)
-            {
-                fprintf(stderr,"Incorrect number of arguments!!!\n");
-                continue;
-            }
-            strcpy(server_ip,tokens[1]);
-            strcpy(server_port,tokens[2]);
+        	if(i!=3)
+        	{
+        		fprintf(stderr,"Incorrect number of arguments!!!\n");
+        		continue;
+        	}
+        	strcpy(server_ip,tokens[1]);
+        	strcpy(server_port,tokens[2]);
         }
         else if(strcmp(tokens[0],"getfl")==0)
         {
-            if(strcmp(server_ip,"empty")==0 || server_port==0)
-            {
-                printf("The values of server_ip and server_port must be set.\n");
-                continue;
-            }
+        	if(strcmp(server_ip,"empty")==0 || server_port==0)
+        	{
+        		printf("The values of server_ip and server_port must be set.\n");
+        		continue;
+        	}
             if(i==2)
             {
                 pid_t pid;
@@ -304,7 +304,7 @@ int main()
                 printf("The values of server_ip and server_port must be set.\n");
                 continue;
             }
-            if(i<2){
+        	if(i<2){
                 fprintf(stderr,"Incorrect number of arguments!!!\n");
                 continue;
             }
@@ -357,7 +357,7 @@ int main()
                 printf("The values of server_ip and server_port must be set.\n");
                 continue;
             }
-            if(i<2){
+        	if(i<2){
                 fprintf(stderr,"Incorrect number of arguments!!!\n");
                 continue;
             }
@@ -401,7 +401,7 @@ int main()
         }
         else if(strcmp(tokens[0],"getbg")==0)
         {
-            if(strcmp(server_ip,"empty")==0 || server_port==0)
+        	if(strcmp(server_ip,"empty")==0 || server_port==0)
             {
                 printf("The values of server_ip and server_port must be set.\n");
                 continue;
@@ -449,22 +449,22 @@ int main()
         else
         {
             int err=0;
-            pid_t pid;
-            pid=fork();
-            if(pid==0)
-            {
-                char arg[100];
-                bzero(arg,100);
-                strcpy(arg,"/bin/");
-                strcat(arg,tokens[0]);
-                if(execvpe(arg,tokens))
-                {
-                    printf("Something went wrong :(\n");
+        	pid_t pid;
+        	pid=fork();
+        	if(pid==0)
+        	{
+        		char arg[100];
+        		bzero(arg,100);
+        		strcpy(arg,"/bin/");
+        		strcat(arg,tokens[0]);
+        		if(execvpe(arg,tokens))
+        		{
+        			printf("Something went wrong :(\n");
                     exit(0);
-                }
-            }
-            else if(pid>0)
-            {
+        		}
+        	}
+        	else if(pid>0)
+	        {
                 if(first==1 && err!=-1)
                 {
                     pg_id=pid;
@@ -472,18 +472,18 @@ int main()
                 }
                 setpgid(pid,pg_id);
                 waitpid(pid,0,0);  
-            }
-            else
-            {
-                fprintf(stderr, "ERROR creating child process(\n");
-            }
+			}
+	        else
+	        {
+	      		fprintf(stderr, "ERROR creating child process(\n");
+	        }
         }
 
-       // Freeing the allocated memory  
-        for(i=0;tokens[i]!=NULL;i++)
-        {
-            free(tokens[i]);
-        }
-        free(tokens);
+       // Freeing the allocated memory	
+    	for(i=0;tokens[i]!=NULL;i++)
+    	{
+			free(tokens[i]);
+    	}
+    	free(tokens);
      }
 }

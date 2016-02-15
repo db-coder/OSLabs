@@ -11,7 +11,7 @@ long long int count=0;
 
 void intHandler()
 {
-    printf("Received SIGINT; downloaded %lld bytes so far.\n",count);
+    fprintf(stderr,"Received SIGINT; downloaded %lld bytes so far.\n",count);
     exit(0);
 }
 
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
         error("ERROR connecting");
 
     /* ask user for input */
-    printf("%s %s %s %s\n",argv[1],argv[2],argv[3],argv[4] );
+    // printf("%s %s %s %s\n",argv[1],argv[2],argv[3],argv[4] );
     bzero(buffer,256);
     strcpy(buffer,argv[1]);
 
