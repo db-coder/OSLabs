@@ -1,0 +1,82 @@
+Group Members:
+
+130050007	:	Vaibhav Bhosale
+130050046	:	Dibyendu Mondal
+
+Part A:
+1. 
+Case 1 : 
+Done!
+Count is 91763
+Time taken is 507 microseconds
+
+Case 2:
+Done!
+Count is 90144
+Time taken is 519 microseconds
+
+Case 3:
+Done!
+Count is 80182
+Time taken is 635 microseconds
+
+The average value of count is 87363 and the average time taken is 553.67 microseconds
+
+2.
+No, the final value of count doesn't match the value of N*K in any of the cases. 
+
+The line that causes this race condition is :
+count++;		(line number 13 in races-partA.c)
+
+Part B:
+1.
+Case 1:
+Done!
+Count is 98327
+Time taken is 465 microseconds
+
+Case 2:
+Done!
+Count is 84838
+Time taken is 762 microseconds
+
+Case 3:
+Done!
+Count is 78939
+Time taken is 691 microseconds
+
+The average value of count is 87368 and the average time taken is 639.33 microseconds
+
+2.
+No, the final value of count doesn't match the value of N*K in any of the cases. In this case, there would be race conditions in accessing the variable locked as well.
+The race conditions are due to the following lines(line numbers 14-17):
+
+while(locked); //do nothing; busy wait
+locked = 1; //set lock
+count++; //increment
+locked = 0; //release lock
+
+The difference as compared to part A is that there are two variables that are accessed by multiple threads which can give rise to race conditions. Hence there isn't any significant benefit in using this software lock.
+
+Part C:
+1.
+Case 1:
+Done!
+Count is 100000
+Time taken is 5989 microseconds
+
+Case 2:
+Done!
+Count is 100000
+Time taken is 5034 microseconds
+
+Case 3:
+Done!
+Count is 100000
+Time taken is 6450 microseconds
+
+The average value of count is 100000 and the average time taken is 5824.33 microseconds
+
+2.
+Yes, the final value of count matches N*K. No race condition occured because while incrementing the value of count, the lock ensures that only one thread can increment the value of count at a time. The difference as compared to part A is the presence of mutex which is basically a hardware lock.
+
