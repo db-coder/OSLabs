@@ -26,51 +26,65 @@ struct file_desc *current;
 struct file_desc *fd_new;
 struct file_desc *temp;
 
-struct sockaddr_in serv_addr, cli_addr;
-int sockfd, requests=0;
+int requests=0,flag=1;
+pthread_mutex_t mutex;
+pthread_cond_t fill,full;
 
 void *process()
 {
-    int n;
-    char buffer[256];   
-    bzero(buffer,256);
-    n = read(top->sock_fd_no,buffer,255);
-    if (n < 0) 
-        error("ERROR reading from socket");
-    printf("Here is the message: %s\n",buffer);
-    char buffer1[256];
-    bzero(buffer1,256);
-    strcpy(buffer1,buffer+4);
-
-    size_t len = strlen(buffer1);
-    char * newBuf = (char *)malloc(len);
-    memcpy(newBuf,buffer1,len);
-    FILE *fp;
-    fp = fopen(newBuf,"r");
-    char buff[1024];
-    bzero(buff,1024);
-    while(fgets(buff,1024,(FILE*)fp) != NULL)
+    while(1)
     {
-        n = write(top->sock_fd_no,buff,1024);
-        bzero(buff,1024);
-        /* send reply to client */
+        int sock;
+        int n;
+        char buffer[256];   
+        bzero(buffer,256);
+        pthread_mutex_lock(&mutex);
+        while(requests==0)
+            pthread_cond_wait(&fill,&mutex);
+        sock=top->sock_fd_no;
+        temp = top->next;
+        free(top);
+        requests--;
+        top = temp;
+        if(top==NULL)
+            flag=1;
+        pthread_cond_signal(&full);
+        pthread_mutex_unlock(&mutex);
+        n = read(sock,buffer,255);
         if (n < 0) 
-            error("ERROR writing to socket");
+            error("ERROR reading from socket");
+        printf("Here is the message: %s\n",buffer);
+        char buffer1[256];
+        bzero(buffer1,256);
+        strcpy(buffer1,buffer+4);
+
+        size_t len = strlen(buffer1);
+        char * newBuf = (char *)malloc(len);
+        memcpy(newBuf,buffer1,len);
+        FILE *fp;
+        fp = fopen(newBuf,"r");
+        char buff[1024];
+        bzero(buff,1024);
+        while(fgets(buff,1024,(FILE*)fp) != NULL)
+        {
+            n = write(sock,buff,1024);
+            bzero(buff,1024);
+            /* send reply to client */
+            if (n < 0) 
+                error("ERROR writing to socket");
+        }
+        fclose(fp);
+        close(sock);
     }
-    fclose(fp);
-    close(top->sock_fd_no);
-    temp = top->next;
-    free(top);
-    requests--;
-    top = temp;
 }
 
 int main(int argc, char *argv[])
 {
-    top = calloc(1,sizeof(struct file_desc));
-    top->next = NULL;
-    current = top;
-    int portno, clilen, pid, w, no_threads, newsockfd;
+    struct sockaddr_in serv_addr, cli_addr;
+    current = calloc(1,sizeof(struct file_desc));
+    current->next = NULL;
+    top = current;
+    int portno, clilen, pid, w, no_threads, newsockfd,sockfd;
     if (argc < 4) 
     {
      fprintf(stderr,"ERROR, incorrect no. of arguments provided\n");
@@ -113,17 +127,27 @@ int main(int argc, char *argv[])
 
     while(1)
     {
-        if(limit < requests) continue;
         /* accept a new request, create a newsockfd */
         newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-        printf("%d\n", newsockfd);
         if (newsockfd < 0) 
             error("ERROR on accept");
+        pthread_mutex_lock(&mutex);
+        while(limit < requests)
+            pthread_cond_wait(&full,&mutex);
         fd_new = calloc(1,sizeof(struct file_desc));
         fd_new->sock_fd_no = newsockfd;
+        fd_new->next = NULL;
+        if(flag)
+        {
+            current = fd_new;
+            top=current;
+            flag=0;
+        }  
         current->next = fd_new;
         current = current->next;
         requests++;
+        pthread_cond_signal(&fill);
+        pthread_mutex_unlock(&mutex);
     }
     return 0; 
 }

@@ -9,7 +9,7 @@ We are using 2 laptops. 1 Lenovo laptop having Ubuntu 15.04 x86_64 architecture,
 
 To compile our code run make.
 To run server(port say 5000):
-./server 5000
+./server-mt 5000 5 500
 
-To run client(say IP 10.7.160.48, port 5000, threads 5, experiment duration 120s, sleep time 0s, random files)
-./multi-client 10.7.160.48 5000 5 120 0 random
+To run client(say IP 10.7.160.48, port 5000, threads 5, experiment duration 120s, sleep time 0s, fixed file)
+./multi-client 10.7.160.48 5000 5 120 0 fixed

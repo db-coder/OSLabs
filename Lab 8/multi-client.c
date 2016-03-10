@@ -18,7 +18,7 @@ struct hostent *server;
 void error(char *msg)
 {
     perror(msg);
-    exit(0);
+    pthread_exit(NULL);
 }
 
 void *process(void *i){
@@ -64,7 +64,7 @@ void *process(void *i){
         bzero(buff,1024);
         n = read(sockfd,buff,1024);
         bzero(buff,1024);
-        // printf("n%d",n);
+        printf("n%d",n);
         while(n>0)
         {
             n = read(sockfd,buff,1024);
