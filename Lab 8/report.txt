@@ -1,6 +1,42 @@
-					Lab 2 
+					Lab 8
 
 Group Members:
 
 130050007	:	Vaibhav Bhosale
 130050046	:	Dibyendu Mondal
+
+Question 1:
+
+N=1 
+Throughput: 5.790323 req/s
+Average Response Time: 3.406685 sec
+N = 2
+Throughput: 5.814516 req/s
+Average Response Time: 3.393897 sec
+N = 3
+Throughput: 5.830645 req/s
+Average Response Time: 3.384509 sec
+N = 4
+Throughput: 5.790323 req/s
+Average Response Time: 3.406685 sec
+N = 5
+Throughput: 5.798387 req/s
+Average Response Time: 3.401947 sec
+N = 6
+Throughput: 5.813008 req/s
+Average Response Time: 3.415385 sec
+N = 7
+Throughput: 5.821138 req/s
+Average Response Time: 3.409218 sec
+N = 8
+Throughput: 5.804878 req/s
+Average Response Time: 3.420168 sec
+N = 9
+Throughput: 5.845528 req/s
+Average Response Time: 3.396384 sec
+N = 10
+Throughput: 5.813008 req/s
+Average Response Time: 3.415385 sec
+
+N=3 seems to be the value for which we get maximum throughput.
+Question 2:
