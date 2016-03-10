@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
         if (newsockfd < 0) 
             error("ERROR on accept");
         pthread_mutex_lock(&mutex);
-        while(limit < requests)
+        while(limit < requests && limit!=0)
             pthread_cond_wait(&full,&mutex);
         fd_new = calloc(1,sizeof(struct file_desc));
         fd_new->sock_fd_no = newsockfd;
