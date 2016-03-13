@@ -64,7 +64,7 @@ void *process(void *i){
         bzero(buff,1024);
         n = read(sockfd,buff,1024);
         bzero(buff,1024);
-        // printf("n%d",n);
+        printf("n%d",n);
         while(n>0)
         {
             n = read(sockfd,buff,1024);
@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
     time_t total_time0;
     total_time0 = time(NULL);
     char buffer[256];
-    if (argc < 6) {
+    if (argc < 3) {
        fprintf(stderr,"usage %s hostname port\n", argv[0]);
        exit(0);
     }

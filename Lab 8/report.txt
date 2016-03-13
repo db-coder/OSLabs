@@ -39,4 +39,8 @@ Throughput: 5.813008 req/s
 Average Response Time: 3.415385 sec
 
 N=3 seems to be the value for which we get maximum throughput.
+
 Question 2:
+
+For every value of N that we tried, the server is showing Error: Connection reset by peer.
+And then client shows Error connecting. I.e. Server is not able to serve the clients and is not able to write to the socket, which is why client can’t read from socket and just exits.
