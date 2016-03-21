@@ -12,24 +12,38 @@ Command used: cat /proc/6279/status |grep -i vm
 Question 1:
 
 VmSize:	    4228 kB
-VmRSS:	     704 kB
+VmRSS:	     712 kB
 
 Question 2:
 
 VmSize:	   14468 kB
-VmRSS:	     704 kB
+VmRSS:	     712 kB
 
 Question 3:
 
 VmSize:	   14468 kB
-VmRSS:	     704 kB
+VmRSS:	     712 kB
 
 Queston 4:
 
 VmSize:	   14468 kB
-VmRSS:	     704 kB
+VmRSS:	     712 kB
 
 Part B:
 
 Question 1:
 
+Throughput 37.103527 MB/s
+
+Question 2:
+
+Throughput 38.605603 MB/s
+
+Question 3:
+
+
+
+Question 4:
+
+Disk Buffer Size after exercise 1: 3456
+Disk Buffer Size after exercise 2: 10484

@@ -13,7 +13,7 @@ int main(int argc, char const *argv[])
 	size_t file_len;
 	char *addr;
 	struct stat st;
-	char *buff;
+	char buff;
 
 	if((filed = open("files/foo0.txt",O_RDWR | O_CREAT, S_IRWXU | S_IRGRP | S_IROTH)) < 0)
 	{
@@ -36,13 +36,12 @@ int main(int argc, char const *argv[])
 	}
 	printf("Memory Mapped.\nPress enter to continue\n");
 	scanf("%c",&a);
-	read(filed,buff,1);
-	printf("First character: %c\n",*buff);
+	buff = addr[0];
+	printf("First character: %c\n",buff);
 	printf("Press enter to continue\n");
 	scanf("%c",&a);
-	lseek(filed,10000,SEEK_SET);
-	read(filed,buff,1);
-	printf("Character at 10000 bytes offset: %c\n",*buff);
+	buff = addr[10000];
+	printf("Character at 10000 bytes offset: %c\n",buff);
 	printf("Press enter to continue\n");
 	scanf("%c",&a);
 	close(filed);
