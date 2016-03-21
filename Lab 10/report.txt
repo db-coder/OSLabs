@@ -1,0 +1,35 @@
+					Lab 10
+
+Group Members:
+
+130050007	:	Vaibhav Bhosale
+130050046	:	Dibyendu Mondal
+
+Part A:
+
+Command used: cat /proc/6279/status |grep -i vm
+
+Question 1:
+
+VmSize:	    4228 kB
+VmRSS:	     704 kB
+
+Question 2:
+
+VmSize:	   14468 kB
+VmRSS:	     704 kB
+
+Question 3:
+
+VmSize:	   14468 kB
+VmRSS:	     704 kB
+
+Queston 4:
+
+VmSize:	   14468 kB
+VmRSS:	     704 kB
+
+Part B:
+
+Question 1:
+
