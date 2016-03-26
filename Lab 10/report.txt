@@ -1,4 +1,4 @@
-					Lab 10
+Lab-10 Report
 
 Group Members:
 
@@ -24,7 +24,7 @@ Question 3:
 VmSize:	   14468 kB
 VmRSS:	     712 kB
 
-Queston 4:
+Question 4:
 
 VmSize:	   14468 kB
 VmRSS:	     712 kB
@@ -33,17 +33,83 @@ Part B:
 
 Question 1:
 
-Throughput 37.103527 MB/s
+Before:
+          		 total       used       free     	shared    buffers     cached
+Mem:       8065444    4650880    3414564     481748       1080     863816
+-/+ buffers/cache:    3785984    4279460
+Swap:      7813116          0    7813116
+
+
+
+
+After:
+             	total       used       free     	shared    buffers     cached
+Mem:       8065444    4911820    3153624     481952      11980    1143336
+-/+ buffers/cache:    3756504    4308940
+Swap:      7813116          0    7813116
+
+Throughput 43.507195 MB/s
 
 Question 2:
 
-Throughput 38.605603 MB/s
+Before:
+             	total       used       free     	shared    buffers     cached
+Mem:       8065444    4625444    3440000     482368       1224     864460
+-/+ buffers/cache:    3759760    4305684
+Swap:      7813116          0    7813116
+
+After:
+             	total       used       free     	shared    buffers     cached
+Mem:       8065444    4955776    3109668     482272      12216    1165920
+-/+ buffers/cache:    3777640    4287804
+Swap:      7813116          0    7813116
+
+Throughput 37.689921 MB/s
 
 Question 3:
 
-
+Using Memory-mapped files gives better throughput.
 
 Question 4:
 
-Disk Buffer Size after exercise 1: 3456
-Disk Buffer Size after exercise 2: 10484
+Question 5:
+
+Before:
+             	total       used       free     	shared    buffers     cached
+Mem:       8065444    4915440    3150004     515216       1248     902112
+-/+ buffers/cache:    4012080    4053364
+Swap:      7813116          0    7813116
+
+After:
+            	 total       used       free    	 shared    buffers     cached
+Mem:       8065444    5206768    2858676     516720       5052    1164108
+-/+ buffers/cache:    4037608    4027836
+Swap:      7813116          0    7813116
+
+Throughput 16.036659 MB/s
+
+Question 6:
+
+Before:
+             	total       used       free    	 shared    buffers     cached
+Mem:       8065444    5040248    3025196     521604       2044     908648
+-/+ buffers/cache:    4129556    3935888
+Swap:      7813116          0    7813116
+
+After:
+             	total       used       free    	 shared    buffers     cached
+Mem:       8065444    5310232    2755212     521620       5784    1167444
+-/+ buffers/cache:    4137004    3928440
+Swap:      7813116          0    7813116
+
+Throughput 34.076821 MB/s
+
+Question 7:
+
+Question 8:
+
+In case of Memory map:
+Throughput 37.852549 MB/s
+
+In case of Regular Files:
+Throughput 294.565271 MB/s

@@ -14,7 +14,7 @@ int main(int argc, char const *argv[])
 	size_t file_len;
 	char *addr;
 	struct stat st;
-	char buff[512];
+	char buff;
 	int i = 0;
 	while(i<25)
 	{
@@ -23,7 +23,7 @@ int main(int argc, char const *argv[])
 		sprintf(num,"%d",i);
 		strcat(fname,num);
 		strcat(fname, ".txt");
-		printf("%s\n", fname);
+		
 		if((filed = open(fname,O_RDWR | O_CREAT, S_IRWXU | S_IRGRP | S_IROTH)) < 0)
 		{
 			perror("Error opening file!");
@@ -37,22 +37,19 @@ int main(int argc, char const *argv[])
 		file_len = st.st_size;
 		total_size += file_len;
 
-		printf("Initialized.\n");
-
-		// if((addr = mmap(NULL,file_len,PROT_READ|PROT_WRITE,MAP_SHARED,filed,0)) == MAP_FAILED)
-		// {
-		// 	perror("Error in mmap");
-		// 	return EXIT_FAILURE;
-		// }
-		// printf("Memory Mapped.\n");
+		if((addr = mmap(NULL,file_len,PROT_READ|PROT_WRITE,MAP_SHARED,filed,0)) == MAP_FAILED)
+		{
+			perror("Error in mmap");
+			return EXIT_FAILURE;
+		}
 
 		struct timeval t1;
 		gettimeofday(&t1,NULL);
-		// for (j = 0; j < file_len; ++j)
-		// {
-		// 	buff = addr[j];
-		// }
-		while((n = read(filed,buff,512)) != 0) bzero(buff,512);
+		for (j = 0; j < file_len; ++j)
+		{
+			buff = addr[j];
+		}
+
 		struct timeval t2;
 		gettimeofday(&t2,NULL);
 		total_time += ((t2.tv_sec-t1.tv_sec) + 0.000001*(t2.tv_usec - t1.tv_usec));
