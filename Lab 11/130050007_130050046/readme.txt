@@ -23,10 +23,13 @@ First we divide buf into chunks of AES_BLOCK_SIZE and then encrypted each chunk 
 Testing:
 
 First we created mountdir and rootdir.
-Then ran ../src/bbfs rootdir/ mountdir/
+Case 1: Using simple cipher
+../src/bbfs rootdir/ mountdir/ 0
+Case 2: Using AES
+../src/bbfs rootdir/ mountdir/ 1
 Then we wrote a file in the mountdir, say: cat ../Makefile > foo
 Now, if we open the file from mountdir, it's decrypted but if we open from the rootdir it's encrypted.
 
-Note that this algorithm works for reading and writing the file and not if we edit a file as AES works for AES_BLOCK_SIZE only, so modifying a file whose size is not a multiple of AES_BLOCK_SIZE will give pains.
+Note that this algorithm works for reading and writing the file and not if we edit a file, as AES works for AES_BLOCK_SIZE only, so modifying a file whose size is not a multiple of AES_BLOCK_SIZE will give pains.
 
 We also tried simple cipher, in which instead of doing all these things we just replace buf[i] with buf[i]+1 in case of writing and buf[i] with buf[i]-1 in case of reading. This works in case of editing a file too.	

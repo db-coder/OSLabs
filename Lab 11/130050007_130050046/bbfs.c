@@ -313,6 +313,7 @@ int bb_open(const char *path, struct fuse_file_info *fi)
     return retstat;
 }
 
+int encryption=1;
 //Code for AES
 int bytes_read, bytes_written;
 
@@ -345,7 +346,7 @@ int num;
 // can return with anything up to the amount of data requested. nor
 // with the fusexmp code which returns the amount of data also
 // returned by read.
-int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
+int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)      //modified this funtion
 {
     int retstat = 0, total = 0;
     char indata[AES_BLOCK_SIZE];
@@ -356,24 +357,35 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
     // no need to get fpath on this one, since I work from fi->fh not the path
     log_fi(fi);
 
-    retstat =  log_syscall("pread", pread(fi->fh, buf, size, offset), 0);
+    retstat =  log_syscall("pread", pread(fi->fh, buf, size, offset), 0);                           //read from the file
     
-    while(total<size)
+    if(encryption == 1)                                                                             //if we use AES Encryption
     {
-        int i;
-        for(i = 0; i<AES_BLOCK_SIZE && total+i<size; i++)
+        while(total<size)
         {
-            indata[i] = buf[total+i];
+            int i;
+            for(i = 0; i<AES_BLOCK_SIZE && total+i<size; i++)                                       //set 16 bytes chunks of buf as input data
+            {
+                indata[i] = buf[total+i];
+            }
+            bytes_read = AES_BLOCK_SIZE;
+            num = 0;
+            memcpy( ivec , ivecstr, AES_BLOCK_SIZE);
+            AES_cfb128_encrypt(indata, outdata, bytes_read, &key, ivec, &num, AES_DECRYPT);         //decrypt buf
+            for(i = 0; i<AES_BLOCK_SIZE && total+i<size; i++)                                       //set the outdata from decrypt as buf
+            {
+                buf[total+i] = outdata[i];
+            }
+            total+=AES_BLOCK_SIZE;
         }
-        bytes_read = AES_BLOCK_SIZE;
-        num = 0;
-        memcpy( ivec , ivecstr, AES_BLOCK_SIZE);
-        AES_cfb128_encrypt(indata, outdata, bytes_read, &key, ivec, &num, AES_DECRYPT);
-        for(i = 0; i<AES_BLOCK_SIZE && total+i<size; i++)
+    }
+    else if (encryption == 0)                                                                       //if we use simple cipher
+    {
+        int i=0;
+        for(i=0;i<size;i++)                                                                         //decrypt buf by setting buf to buf-1
         {
-            buf[total+i] = outdata[i];
+            buf[i]=buf[i]-1;
         }
-        total+=AES_BLOCK_SIZE;
     }
 
     return retstat;
@@ -390,35 +402,40 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
 // As  with read(), the documentation above is inconsistent with the
 // documentation for the write() system call.
 int bb_write(const char *path, const char *buf, size_t size, off_t offset,
-	     struct fuse_file_info *fi)
+	     struct fuse_file_info *fi)                                            //modified this funtion
 {
-    int retstat = 0, total = 0,count=0;
+    int retstat = 0, total = 0;
     char buf_new[size];
     char indata[AES_BLOCK_SIZE];
     char outdata[AES_BLOCK_SIZE];
     
-    while(total<size)
+    if(encryption == 1)                                                         //if we use AES Encryption
     {
-        int i;
-        for(i = 0; i<AES_BLOCK_SIZE && total+i<size; i++)
+        while(total<size)
         {
-            indata[i] = buf[total+i];
+            int i;
+            for(i = 0; i<AES_BLOCK_SIZE && total+i<size; i++)                   //set 16 bytes chunks of buf as input data
+            {
+                indata[i] = buf[total+i];
+            }
+            bytes_read = AES_BLOCK_SIZE;
+            num = 0;
+            memcpy( ivec , ivecstr, AES_BLOCK_SIZE);
+            AES_cfb128_encrypt(indata, outdata, bytes_read, &key, ivec, &num, AES_ENCRYPT); //encrypt buf
+            for(i = 0; i<AES_BLOCK_SIZE && total+i<size; i++)
+            {
+                buf_new[total+i] = outdata[i];                                      //set the encrypted output to buf_new
+            }
+            total+=AES_BLOCK_SIZE;
         }
-        // while(i!=AES_BLOCK_SIZE)
-        // {
-        //     count++;
-        //     indata[i] = '\0';
-        //     i++;
-        // }
-        bytes_read = AES_BLOCK_SIZE;
-        num = 0;
-        memcpy( ivec , ivecstr, AES_BLOCK_SIZE);
-        AES_cfb128_encrypt(indata, outdata, bytes_read, &key, ivec, &num, AES_ENCRYPT);
-        for(i = 0; i<AES_BLOCK_SIZE && total+i<size; i++)
+    }
+    else if(encryption == 0)                                                        //if we use simple cipher
+    {
+        int i=0;
+        for(i=0;i<size;i++)
         {
-            buf_new[total+i] = outdata[i];
+            buf_new[i]=buf[i]+1;                                                    //encrypt buf by setting buf[i] as buf[i]+1
         }
-        total+=AES_BLOCK_SIZE;
     }
     
     log_msg("\nbb_write(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
@@ -427,7 +444,7 @@ int bb_write(const char *path, const char *buf, size_t size, off_t offset,
     // no need to get fpath on this one, since I work from fi->fh not the path
     log_fi(fi);
 
-    return log_syscall("pwrite", pwrite(fi->fh, buf_new, size+count, offset), 0);
+    return log_syscall("pwrite", pwrite(fi->fh, buf_new, size, offset), 0);        //write encrypted data to file
 }
 
 /** Get file system statistics
@@ -919,7 +936,7 @@ struct fuse_operations bb_oper = {
 
 void bb_usage()
 {
-    fprintf(stderr, "usage:  bbfs [FUSE and mount options] rootDir mountPoint\n");
+    fprintf(stderr, "usage:  bbfs [FUSE and mount options] rootDir mountPoint encryptionMode (0 for cipher and 1 for aes)\n");
     abort();
 }
 
@@ -953,13 +970,19 @@ int main(int argc, char *argv[])
     // start with a hyphen (this will break if you actually have a
     // rootpoint or mountpoint whose name starts with a hyphen, but so
     // will a zillion other programs)
-    if ((argc < 3) || (argv[argc-2][0] == '-') || (argv[argc-1][0] == '-'))
+    if ((argc < 4) || (argv[argc-2][0] == '-') || (argv[argc-1][0] == '-'))
 	bb_usage();
 
     bb_data = malloc(sizeof(struct bb_state));
     if (bb_data == NULL) {
 	perror("main calloc");
 	abort();
+    }
+
+    if(argc ==4 )
+    {
+        encryption = atoi(argv[3]);
+        argc--;
     }
 
     // Pull the rootdir out of the argument list and save it in my
